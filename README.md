@@ -2,6 +2,8 @@
 
 An open source, configurable HTTP simulator for testing BSS integrations with external systems such as OCS, HLR/HSS, payment platforms, and ERP services. Define partner behavior in the web UI, then point a BSS integration at the simulator instead of a live partner.
 
+**Project site:** <https://unnismohan.github.io/bss-integration-simulator/> · **Source:** <https://github.com/unnismohan/bss-integration-simulator>
+
 ## What it supports
 
 - Synchronous request and response flows.
