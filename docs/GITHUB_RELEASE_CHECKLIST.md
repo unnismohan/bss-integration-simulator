@@ -30,4 +30,4 @@ If this directory is not already a Git checkout, initialize it locally, review t
 - Add maintainer contacts and support expectations to the repository settings.
 - Create a signed/versioned release only after a clean CI run, dependency review, container scan, Tanzu deployment validation, and release notes review.
 - Keep release images and Kubernetes values in an approved registry and secret manager. Do not publish private deployment values or credentials in the repository.
-- GitHub Pages is deployed from `site/` by `.github/workflows/pages.yml`. Enable Pages with **Settings → Pages → Build and deployment → GitHub Actions**. The site is a project landing page; the interactive simulator API and database must be deployed separately.
+- GitHub Pages serves the project landing page from `docs/index.html` on the `main` branch. Configure **Settings → Pages → Build and deployment → Deploy from a branch → `main` → `/docs`**. The interactive simulator API and database must be deployed separately.
