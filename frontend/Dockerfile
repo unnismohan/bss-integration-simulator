@@ -1,4 +1,4 @@
-FROM node:22-alpine3.24 AS build
+FROM node:26-alpine3.24 AS build
 WORKDIR /ui
 COPY package.json package-lock.json ./
 RUN npm ci --no-fund && npm audit --audit-level=high
