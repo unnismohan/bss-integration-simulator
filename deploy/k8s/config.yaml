@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bss-simulator-config
+data:
+  APP_ENV: "production"
+  ENABLE_API_DOCS: "false"
+  CALLBACK_ALLOWED_HOSTS: "${CALLBACK_ALLOWED_HOSTS}"
+  CALLBACK_POLL_SECONDS: "0.25"
+  CALLBACK_BATCH_SIZE: "50"
+  CALLBACK_TIMEOUT_SECONDS: "5"
+  MAX_REQUEST_BYTES: "1048576"
+  CORS_ORIGINS: "${CORS_ORIGINS}"
+  API_DB_POOL_SIZE: "15"
+  API_DB_MAX_OVERFLOW: "5"

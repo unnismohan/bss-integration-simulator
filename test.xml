@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic fixture for local simulator checks. Replace placeholders only with approved test data. -->
+<soapenv:Envelope
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:sim="https://partner.example.com/telecom/subscriber-key">
+    <soapenv:Header>
+        <sim:Username>SIMULATOR_TEST_USER</sim:Username>
+        <sim:Password>REPLACE_WITH_TEST_PASSWORD</sim:Password>
+    </soapenv:Header>
+    <soapenv:Body>
+        <sim:ProvisionSubscriberKey>
+            <sim:RegistryNumber>1</sim:RegistryNumber>
+            <sim:SubscriberNumber>001010000000001</sim:SubscriberNumber>
+            <sim:Operation>ADD</sim:Operation>
+            <sim:CardType>USIM</sim:CardType>
+            <sim:KeyValue>00000000000000000000000000000000</sim:KeyValue>
+            <sim:Algorithm>MILENAGE</sim:Algorithm>
+        </sim:ProvisionSubscriberKey>
+    </soapenv:Body>
+</soapenv:Envelope>

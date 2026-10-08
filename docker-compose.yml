@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: simulator
+      POSTGRES_USER: simulator
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simulator}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - simulator_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simulator -d simulator"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  bss-simulator-api:
+    build:
+      context: ./backend
+    image: bss-integration-simulator-backend:local
+    environment:
+      DATABASE_URL: postgresql+psycopg://simulator:${POSTGRES_PASSWORD:-simulator}@postgres:5432/simulator
+      APP_ENV: ${APP_ENV:-development}
+      SIMULATOR_API_KEY: ${SIMULATOR_API_KEY:-}
+      CALLBACK_ALLOWED_HOSTS: ${CALLBACK_ALLOWED_HOSTS:-host.docker.internal,localhost,127.0.0.1,bss-simulator-api}
+      CALLBACK_POLL_SECONDS: ${CALLBACK_POLL_SECONDS:-0.25}
+      CALLBACK_BATCH_SIZE: ${CALLBACK_BATCH_SIZE:-100}
+      CALLBACK_TIMEOUT_SECONDS: ${CALLBACK_TIMEOUT_SECONDS:-5}
+      MAX_REQUEST_BYTES: ${MAX_REQUEST_BYTES:-1048576}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8088}
+      API_DB_POOL_SIZE: ${API_DB_POOL_SIZE:-40}
+      API_DB_MAX_OVERFLOW: ${API_DB_MAX_OVERFLOW:-30}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+  callback-worker:
+    image: bss-integration-simulator-backend:local
+    command: ["python", "-m", "app.worker"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://simulator:${POSTGRES_PASSWORD:-simulator}@postgres:5432/simulator
+      CALLBACK_ALLOWED_HOSTS: ${CALLBACK_ALLOWED_HOSTS:-host.docker.internal,localhost,127.0.0.1,bss-simulator-api}
+      CALLBACK_POLL_SECONDS: ${CALLBACK_POLL_SECONDS:-0.25}
+      CALLBACK_BATCH_SIZE: ${CALLBACK_BATCH_SIZE:-100}
+      CALLBACK_TIMEOUT_SECONDS: ${CALLBACK_TIMEOUT_SECONDS:-5}
+      API_DB_POOL_SIZE: ${CALLBACK_DB_POOL_SIZE:-5}
+      API_DB_MAX_OVERFLOW: ${CALLBACK_DB_MAX_OVERFLOW:-5}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      bss-simulator-api:
+        condition: service_healthy
+    restart: unless-stopped
+  ui:
+    build:
+      context: ./frontend
+    image: bss-integration-simulator-ui:local
+    ports:
+      - "8088:8080"
+    depends_on:
+      bss-simulator-api:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  simulator_pgdata:

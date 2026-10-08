@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bss-simulator-callback-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: bss-simulator-callback-worker}
+  template:
+    metadata:
+      labels: {app: bss-simulator-callback-worker}
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: worker
+          image: ${BACKEND_IMAGE}
+          command: ["python", "-m", "app.worker"]
+          envFrom: [{configMapRef: {name: bss-simulator-config}}]
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: bss-simulator-database, key: url}}
+            - name: API_DB_POOL_SIZE
+              value: "5"
+            - name: API_DB_MAX_OVERFLOW
+              value: "5"
+          resources:
+            requests: {cpu: 100m, memory: 192Mi}
+            limits: {cpu: 750m, memory: 512Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities: {drop: [ALL]}

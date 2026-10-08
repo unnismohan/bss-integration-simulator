@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bss-simulator-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: bss-simulator-ui}
+  template:
+    metadata:
+      labels: {app: bss-simulator-ui}
+    spec:
+      containers:
+        - name: ui
+          image: ${UI_IMAGE}
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 250m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 101
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: nginx-cache, mountPath: /var/cache/nginx}
+            - {name: nginx-run, mountPath: /var/run}
+            - {name: nginx-tmp, mountPath: /tmp}
+      volumes:
+        - {name: nginx-cache, emptyDir: {}}
+        - {name: nginx-run, emptyDir: {}}
+        - {name: nginx-tmp, emptyDir: {}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bss-simulator-ui
+spec:
+  selector: {app: bss-simulator-ui}
+  ports: [{name: http, port: 8080, targetPort: http}]
