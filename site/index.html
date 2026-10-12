@@ -3,95 +3,134 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="An open-source HTTP partner simulator for BSS integration development and load testing." />
-    <title>BSS Integration Simulator</title>
+    <meta name="description" content="A configurable HTTP partner simulator for BSS integration testing, async callbacks, and controlled load tests." />
+    <meta name="theme-color" content="#071521" />
+    <title>BSS Integration Simulator — Test every integration path</title>
     <style>
-      :root { color-scheme: light; --ink: #132c40; --muted: #526b7d; --blue: #087f98; --line: #d8e4eb; --pale: #edf7f9; }
+      :root { color-scheme: dark; --bg: #071521; --panel: #0e2231; --panel2: #132b3b; --ink: #f2f7fa; --muted: #9ab0be; --cyan: #4dd9d0; --lime: #c7f36b; --line: #284353; --mono: ui-monospace, SFMono-Regular, Consolas, monospace; }
       * { box-sizing: border-box; }
-      body { margin: 0; background: #f5f8fa; color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-      a { color: var(--blue); }
-      .wrap { width: min(1080px, calc(100% - 40px)); margin: auto; }
-      header { padding: 26px 0; border-bottom: 1px solid var(--line); background: white; }
-      nav { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-      nav strong { letter-spacing: .04em; }
-      nav div { display: flex; flex-wrap: wrap; gap: 20px; }
-      nav a { text-decoration: none; font-weight: 600; }
-      .hero { padding: 88px 0 70px; }
-      .eyebrow { color: var(--blue); font-size: .82rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-      h1 { max-width: 780px; margin: 12px 0 16px; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.08; letter-spacing: -.04em; }
-      .lead { max-width: 760px; color: var(--muted); font-size: 1.2rem; }
-      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-      .button { display: inline-block; padding: 11px 17px; border: 1px solid var(--blue); border-radius: 8px; color: var(--blue); font-weight: 700; text-decoration: none; }
-      .button.primary { background: var(--blue); color: white; }
-      section { padding: 48px 0; border-top: 1px solid var(--line); }
-      h2 { margin: 0 0 10px; font-size: 1.8rem; }
-      .muted { color: var(--muted); }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
-      article { padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: white; }
-      article h3 { margin: 0 0 7px; }
-      article p { margin: 0; color: var(--muted); }
-      code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
-      .notice { padding: 17px 20px; border-left: 4px solid var(--blue); border-radius: 6px; background: var(--pale); }
-      footer { padding: 28px 0; border-top: 1px solid var(--line); color: var(--muted); }
-      @media (max-width: 620px) { nav { align-items: flex-start; flex-direction: column; } .hero { padding: 58px 0 45px; } }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+      a { color: inherit; }
+      .shell { width: min(1160px, calc(100% - 48px)); margin: 0 auto; }
+      header { position: sticky; top: 0; z-index: 5; border-bottom: 1px solid rgba(154,176,190,.15); background: rgba(7,21,33,.88); backdrop-filter: blur(16px); }
+      nav { min-height: 76px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-size: .9rem; font-weight: 800; letter-spacing: .045em; }
+      .mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--cyan); color: #06202a; font-size: 1.1rem; }
+      .navlinks { display: flex; align-items: center; gap: 28px; }
+      .navlinks a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 650; }
+      .navlinks a:hover { color: var(--cyan); }
+      .navlinks .nav-cta { padding: 9px 15px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); }
+      .hero { position: relative; display: grid; grid-template-columns: 1.02fr .98fr; align-items: center; gap: 54px; padding: 92px 0 100px; overflow: hidden; }
+      .hero:before { content: ""; position: absolute; width: 510px; height: 510px; top: -150px; right: 2%; z-index: -1; border-radius: 50%; background: radial-gradient(circle, rgba(77,217,208,.13), transparent 68%); }
+      .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--cyan); font-size: .76rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 14px var(--lime); }
+      h1 { max-width: 650px; margin: 18px 0; font-size: clamp(2.7rem, 5.5vw, 4.5rem); line-height: 1.04; letter-spacing: -.055em; }
+      h1 span { color: var(--cyan); }
+      .lead { max-width: 570px; color: var(--muted); font-size: 1.1rem; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+      .button { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 0 17px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); font-weight: 750; text-decoration: none; transition: transform .18s ease, border-color .18s ease; }
+      .button:hover { transform: translateY(-2px); border-color: var(--cyan); }
+      .button.primary { border-color: var(--cyan); background: var(--cyan); color: #06202a; }
+      .proof { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 27px; color: var(--muted); font-size: .82rem; }
+      .proof span:before { content: "✓"; margin-right: 7px; color: var(--lime); font-weight: 900; }
+      .visual { position: relative; padding: 18px; border: 1px solid #294959; border-radius: 18px; background: linear-gradient(145deg, rgba(19,43,59,.97), rgba(10,29,42,.97)); box-shadow: 0 28px 90px rgba(0,0,0,.32); transform: rotate(1deg); }
+      .windowbar { display: flex; align-items: center; gap: 7px; padding: 2px 2px 17px; border-bottom: 1px solid var(--line); }
+      .windowbar i { width: 8px; height: 8px; border-radius: 50%; background: #547080; }
+      .windowbar i:first-child { background: #f28d79; } .windowbar i:nth-child(2) { background: #e9c75e; } .windowbar i:nth-child(3) { background: #70ce9d; }
+      .window-title { margin-left: auto; color: #7994a4; font: .7rem var(--mono); }
+      .flow-label { display: flex; justify-content: space-between; align-items: center; margin: 18px 0 11px; color: var(--muted); font-size: .75rem; }
+      .tag { padding: 4px 8px; border: 1px solid rgba(77,217,208,.28); border-radius: 20px; color: var(--cyan); font-size: .65rem; font-weight: 800; letter-spacing: .06em; }
+      .flow { display: grid; grid-template-columns: 1fr 36px 1fr 36px 1fr; align-items: center; gap: 3px; }
+      .node { min-height: 93px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(7,21,33,.65); }
+      .node strong { font-size: .78rem; } .node small { color: var(--muted); font-size: .63rem; }
+      .node.active { border-color: rgba(77,217,208,.55); background: rgba(77,217,208,.07); }
+      .arrow { color: var(--cyan); text-align: center; font-size: 1.2rem; }
+      .reply { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-top: 13px; }
+      .reply div { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font: .66rem/1.7 var(--mono); }
+      .reply b { color: var(--lime); font-weight: 500; }
+      .metrics { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 0 48px; border: 1px solid var(--line); border-radius: 13px; background: rgba(14,34,49,.76); }
+      .metric { padding: 21px 26px; } .metric + .metric { border-left: 1px solid var(--line); }
+      .metric strong { display: block; color: var(--cyan); font-size: 1.35rem; letter-spacing: -.03em; }
+      .metric span { color: var(--muted); font-size: .82rem; }
+      section.content { padding: 76px 0; border-top: 1px solid rgba(154,176,190,.15); }
+      .section-head { max-width: 650px; margin-bottom: 30px; }
+      .section-kicker { color: var(--cyan); font-size: .72rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+      h2 { margin: 7px 0 10px; font-size: clamp(1.8rem, 3.2vw, 2.65rem); line-height: 1.2; letter-spacing: -.04em; }
+      .section-head p, .card p { margin: 0; color: var(--muted); }
+      .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+      .card { min-height: 202px; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(155deg, rgba(19,43,59,.75), rgba(11,30,43,.62)); }
+      .icon { width: 39px; height: 39px; display: grid; place-items: center; margin-bottom: 20px; border: 1px solid rgba(77,217,208,.25); border-radius: 10px; background: rgba(77,217,208,.08); color: var(--cyan); font-size: 1.1rem; }
+      h3 { margin: 0 0 7px; font-size: 1rem; }
+      .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; counter-reset: item; }
+      .step { padding: 22px; border-top: 1px solid var(--line); counter-increment: item; }
+      .step:before { content: "0" counter(item); display: block; margin-bottom: 25px; color: var(--cyan); font: 800 .78rem var(--mono); }
+      .quickstart { display: grid; grid-template-columns: .8fr 1.2fr; gap: 36px; align-items: center; padding: 30px; border: 1px solid #315062; border-radius: 15px; background: radial-gradient(ellipse at 100% 0, rgba(77,217,208,.09), transparent 60%), var(--panel); }
+      .quickstart p { color: var(--muted); }
+      pre { overflow-x: auto; margin: 0; padding: 21px; border: 1px solid #294353; border-radius: 10px; background: #06111a; color: #c9dce5; font: .8rem/1.8 var(--mono); }
+      pre .cmd { color: var(--lime); }
+      .note { margin-top: 20px; color: var(--muted); font-size: .83rem; }
+      .note strong { color: var(--ink); }
+      footer { margin-top: 70px; border-top: 1px solid rgba(154,176,190,.15); }
+      .foot { min-height: 88px; display: flex; justify-content: space-between; align-items: center; gap: 20px; color: var(--muted); font-size: .82rem; }
+      .footlinks { display: flex; gap: 20px; } .foot a { color: var(--muted); text-decoration: none; } .foot a:hover { color: var(--cyan); }
+      @media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 42px; padding-top: 68px; } .visual { max-width: 650px; } .grid { grid-template-columns: repeat(2,1fr); } }
+      @media (max-width: 600px) { .shell { width: min(100% - 32px, 1160px); } nav { min-height: 68px; } .navlinks { gap: 13px; } .navlinks a { font-size: .78rem; } .navlinks a:nth-child(1), .navlinks a:nth-child(2) { display:none; } .hero { padding: 58px 0 68px; } h1 { font-size: clamp(2.55rem, 13vw, 3.5rem); } .lead { font-size: 1rem; } .metrics { grid-template-columns: 1fr; } .metric { padding: 15px 19px; } .metric + .metric { border-left: 0; border-top: 1px solid var(--line); } section.content { padding: 56px 0; } .grid, .steps, .quickstart { grid-template-columns: 1fr; } .quickstart { padding: 22px; gap: 12px; } .flow { grid-template-columns: 1fr 20px 1fr 20px 1fr; } .node { min-height: 82px; padding: 9px; } .node strong { font-size: .67rem; } .node small { font-size: .56rem; } .foot { align-items: flex-start; flex-direction: column; justify-content: center; padding: 19px 0; } }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *:before, *:after { transition-duration: .01ms !important; } }
     </style>
   </head>
   <body>
     <header>
-      <nav class="wrap" aria-label="Main navigation">
-        <strong>BSS INTEGRATION SIMULATOR</strong>
-        <div>
-          <a href="#features">Features</a>
-          <a href="#how-it-works">How it works</a>
-          <a href="https://github.com/unnismohan/bss-integration-simulator/tree/main/docs">Documentation</a>
-          <a href="https://github.com/unnismohan/bss-integration-simulator">Source code</a>
-        </div>
+      <nav class="shell" aria-label="Main navigation">
+        <a class="brand" href="#top"><span class="mark" aria-hidden="true">↗</span><span>BSS INTEGRATION<br />SIMULATOR</span></a>
+        <div class="navlinks"><a href="#features">Features</a><a href="#workflow">How it works</a><a href="https://github.com/unnismohan/bss-integration-simulator/tree/main/docs">Docs</a><a class="nav-cta" href="https://github.com/unnismohan/bss-integration-simulator">View on GitHub ↗</a></div>
       </nav>
     </header>
-    <main class="wrap">
-      <section class="hero" style="border:0">
-        <div class="eyebrow">Open-source integration test tooling</div>
-        <h1>Simulate partner APIs. Test your BSS with confidence.</h1>
-        <p class="lead">Configure realistic HTTP partner behavior for development, integration testing, and controlled load tests—without depending on live third-party systems.</p>
-        <div class="actions">
-          <a class="button primary" href="https://github.com/unnismohan/bss-integration-simulator#quick-start-with-docker-compose">Get started</a>
-          <a class="button" href="https://github.com/unnismohan/bss-integration-simulator/blob/main/docs/SCENARIO_FORMAT.md">Scenario guide</a>
+    <main id="top" class="shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Open-source integration test tooling</div>
+          <h1 id="hero-title">Take the wait out of <span>integration testing.</span></h1>
+          <p class="lead">Build dependable partner API simulations for your BSS. Exercise realistic request, response, and callback paths without waiting on external systems.</p>
+          <div class="actions"><a class="button primary" href="https://github.com/unnismohan/bss-integration-simulator#quick-start-with-docker-compose">Get started <span aria-hidden="true">→</span></a><a class="button" href="https://github.com/unnismohan/bss-integration-simulator/blob/main/docs/SCENARIO_FORMAT.md">Read the scenario guide</a></div>
+          <div class="proof"><span>Sync and async flows</span><span>JSON, XML and SOAP</span><span>Docker and Kubernetes</span></div>
+        </div>
+        <div class="visual" aria-label="Illustration of a BSS request, simulator response, and asynchronous callback flow">
+          <div class="windowbar"><i></i><i></i><i></i><span class="window-title">PARTNER FLOW / PREVIEW</span></div>
+          <div class="flow-label"><span>One scenario. Both integration patterns.</span><span class="tag">CONFIGURABLE</span></div>
+          <div class="flow"><div class="node"><strong>BSS</strong><small>HTTP request</small></div><span class="arrow">→</span><div class="node active"><strong>Simulator</strong><small>JSON · XML · SOAP</small></div><span class="arrow">→</span><div class="node"><strong>Partner reply</strong><small>Mapped response</small></div></div>
+          <div class="reply"><div><b>200 OK</b><br />Immediate response</div><div><b>202 ACK → callback</b><br />Delayed final result</div></div>
         </div>
       </section>
+      <div class="metrics" aria-label="Project capabilities"><div class="metric"><strong>Two flow modes</strong><span>Synchronous reply or acknowledgement then callback</span></div><div class="metric"><strong>Flexible payloads</strong><span>Configure JSON and XML / SOAP behavior</span></div><div class="metric"><strong>Run your way</strong><span>Docker Compose or Kubernetes deployment</span></div></div>
 
-      <section id="features">
-        <h2>What it supports</h2>
-        <p class="muted">Build configurable partner simulations through a guided web interface.</p>
+      <section id="features" class="content">
+        <div class="section-head"><span class="section-kicker">Built for integration teams</span><h2>Partner behavior, on your terms.</h2><p>Configure scenarios from sample payloads and tune the response behavior your test needs.</p></div>
         <div class="grid">
-          <article><h3>Sync and async flows</h3><p>Return an immediate response or an acknowledgement followed by a delayed callback with configurable retries.</p></article>
-          <article><h3>JSON and XML</h3><p>Model JSON APIs and XML/SOAP-envelope payloads with request captures and response mappings.</p></article>
-          <article><h3>Dynamic response values</h3><p>Copy values from requests or generate fixed, random, and choice-based response values.</p></article>
-          <article><h3>Load and runtime visibility</h3><p>Use included load generators and monitor simulator throughput, resources, and callback queue health.</p></article>
+          <article class="card"><div class="icon" aria-hidden="true">⇄</div><h3>Sync and async</h3><p>Return an immediate result or acknowledge first and deliver a callback later, with configurable delay and retries.</p></article>
+          <article class="card"><div class="icon" aria-hidden="true">{ }</div><h3>JSON and XML / SOAP</h3><p>Model common partner API formats and map nested fields from request samples into response payloads.</p></article>
+          <article class="card"><div class="icon" aria-hidden="true">⌘</div><h3>Dynamic values</h3><p>Capture request fields, reuse them in replies, or generate fixed, random, and choice-based values.</p></article>
+          <article class="card"><div class="icon" aria-hidden="true">↗</div><h3>Load visibility</h3><p>Run included load tools and monitor throughput, process resources, and callback queue health.</p></article>
         </div>
       </section>
 
-      <section id="how-it-works">
-        <h2>How it works</h2>
-        <div class="grid">
-          <article><h3>1. Define a scenario</h3><p>Set the method, endpoint key, request format, and synchronous or callback flow.</p></article>
-          <article><h3>2. Map request and reply fields</h3><p>Paste sample payloads, discover their fields, then map captures and generated values into responses.</p></article>
-          <article><h3>3. Point your BSS at it</h3><p>Call <code>/sim/&lt;scenario-key&gt;</code> and test against the configured partner behavior.</p></article>
+      <section id="workflow" class="content">
+        <div class="section-head"><span class="section-kicker">A simple workflow</span><h2>From sample payload to test endpoint.</h2></div>
+        <div class="steps"><article class="step"><h3>Define the partner operation</h3><p class="muted">Choose the method, endpoint key, payload formats, and sync or async behavior.</p></article><article class="step"><h3>Map request and response fields</h3><p class="muted">Paste representative samples, discover fields, and configure captures and generated values.</p></article><article class="step"><h3>Point your BSS at the simulator</h3><p class="muted">Send requests to <code>/sim/&lt;scenario-key&gt;</code> and test against the configured behavior.</p></article></div>
+      </section>
+
+      <section class="content" id="quickstart">
+        <div class="quickstart">
+          <div><span class="section-kicker">Get up and running</span><h2>Start locally with Docker.</h2><p>Bring up the UI, API, callback worker, and database with Docker Compose.</p><a class="button primary" href="https://github.com/unnismohan/bss-integration-simulator#quick-start-with-docker-compose">Open setup guide →</a></div>
+          <pre aria-label="Docker Compose setup commands"><span class="cmd">git clone</span> https://github.com/unnismohan/bss-integration-simulator.git
+<span class="cmd">cd</span> bss-integration-simulator
+<span class="cmd">docker compose up --build -d</span>
+
+# Open the UI at http://localhost:8088</pre>
         </div>
-      </section>
-
-      <section>
-        <h2>Run locally</h2>
-        <p>Requirements: Docker Engine or Docker Desktop with Docker Compose v2.</p>
-        <pre><code>git clone https://github.com/unnismohan/bss-integration-simulator.git
-cd bss-integration-simulator
-docker compose up --build -d</code></pre>
-        <p>Open the UI at <code>http://localhost:8088</code>. The full setup and deployment details are in the <a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/README.md">README</a> and <a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/docs/KUBERNETES_TANZU_DEPLOYMENT.md">Kubernetes deployment guide</a>.</p>
-      </section>
-
-      <section>
-        <div class="notice"><strong>Deployment note:</strong> GitHub Pages hosts this project website and documentation links. The interactive simulator requires the API, callback worker, and PostgreSQL; deploy those with Docker Compose or Kubernetes.</div>
+        <p class="note"><strong>Deployment:</strong> This page introduces the project. The interactive simulator requires the API, callback worker, and PostgreSQL, deployed separately using Docker Compose or Kubernetes. See the <a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/docs/KUBERNETES_TANZU_DEPLOYMENT.md">Kubernetes deployment guide</a>.</p>
       </section>
     </main>
-    <footer><div class="wrap">Open source under the MIT License · <a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/CONTRIBUTING.md">Contribute</a> · <a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/SECURITY.md">Security</a></div></footer>
+    <footer><div class="shell foot"><span>Open source under the MIT License</span><div class="footlinks"><a href="https://github.com/unnismohan/bss-integration-simulator">GitHub</a><a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/CONTRIBUTING.md">Contribute</a><a href="https://github.com/unnismohan/bss-integration-simulator/blob/main/SECURITY.md">Security</a></div></div></footer>
   </body>
 </html>
