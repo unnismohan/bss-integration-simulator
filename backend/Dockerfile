@@ -1,10 +1,10 @@
-FROM python:3.12-slim-trixie AS dependency-audit
+FROM python:3.14-slim-trixie AS dependency-audit
 WORKDIR /audit
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir pip-audit==2.10.1 \
     && pip-audit --requirement requirements.txt --strict
 
-FROM python:3.12-slim-trixie
+FROM python:3.14-slim-trixie
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY requirements.txt ./requirements.txt
